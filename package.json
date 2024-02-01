@@ -1,0 +1,31 @@
+{
+  "name": "@unparallel/bootstrap-5-theme-generator",
+  "version": "0.0.1",
+  "description": "",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublishOnly": "rm -rf dist && npm run build",
+    "start": "ts-node dev/index.ts",
+    "build": "tsup --publicDir",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "object-hash": "^3.0.0",
+    "sass": "^1.70.0"
+  },
+  "devDependencies": {
+    "@release-it/keep-a-changelog": "^5.0.0",
+    "@types/node": "^20.11.15",
+    "@types/object-hash": "^3.0.6",
+    "release-it": "^17.0.3",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.1"
+  }
+}
