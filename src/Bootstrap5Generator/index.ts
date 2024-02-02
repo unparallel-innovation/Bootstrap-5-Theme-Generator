@@ -6,7 +6,7 @@ export interface BootstrapVariables {
 }
 
 export interface Cache {
-	getCachedCCS:(id:string)=>(string | undefined | null | Promise<string | undefined | null>),
+	getCachedCSS:(id:string)=>(string | undefined | null | Promise<string | undefined | null>),
 	setCachedCSS:(id:string,css:string)=>(Promise<void> | void)
 
 }
@@ -40,7 +40,7 @@ export default class Bootstrap5Generator {
 
 	async getCSS(variables:BootstrapVariables):Promise<string>{
 		const id = hash(variables)
-		const cachedCSS = await this.cache?.getCachedCCS(id)
+		const cachedCSS = await this.cache?.getCachedCSS(id)
 		if(cachedCSS) return cachedCSS
 		const generatedCSS =  this.generateCSS(variables)
 		this.cache?.setCachedCSS(id,generatedCSS)
