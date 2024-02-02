@@ -28,17 +28,23 @@ const variables = {
 	"$toast-border-radius": "2rem"
 }
 
+const theme = {
+	variables
+}
+
 const instance = new Bootstrap5Generator({cache})
 
 async function main(){
 	try{
 		console.log("Generating")
 		console.time()
-		const css = await instance.getCSS(variables)
+		const css = await instance.getCSS(theme)
+		fs.writeFileSync(__dirname + '/test.css',css)
 		console.timeEnd()
 		console.log("Generating")
 		console.time()
-		const css2 = await instance.getCSS(variables)
+		const css2 = await instance.getCSS(theme)
+		fs.writeFileSync(__dirname + '/test2.css',css2)
 		console.timeEnd()
 	}
 	catch (e) {
