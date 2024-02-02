@@ -1,13 +1,20 @@
 import fs from "node:fs";
 import * as sass from 'sass'
 import hash from 'object-hash'
+
+
+export interface BootstrapTheme {
+	variables:BootstrapVariables,
+	[key:string]:any
+}
+
 export interface BootstrapVariables {
 	[key:string]:string
 }
 
 export interface Cache {
-	getCachedCSS:(id:string)=>(string | undefined | null | Promise<string | undefined | null>),
-	setCachedCSS:(id:string,css:string)=>(Promise<void> | void)
+	getCachedCSS:(id:string,theme:BootstrapTheme)=>(string | undefined | null | Promise<string | undefined | null>),
+	setCachedCSS:(id:string,css:string,theme:BootstrapTheme)=>(Promise<void> | void)
 
 }
 
@@ -38,12 +45,13 @@ export default class Bootstrap5Generator {
 
 	}
 
-	async getCSS(variables:BootstrapVariables):Promise<string>{
+	async getCSS(theme:BootstrapTheme):Promise<string>{
+		const variables = theme.variables
 		const id = hash(variables)
-		const cachedCSS = await this.cache?.getCachedCSS(id)
+		const cachedCSS = await this.cache?.getCachedCSS(id,theme)
 		if(cachedCSS) return cachedCSS
 		const generatedCSS =  this.generateCSS(variables)
-		this.cache?.setCachedCSS(id,generatedCSS)
+		this.cache?.setCachedCSS(id,generatedCSS,theme)
 		return generatedCSS
 
 	}
