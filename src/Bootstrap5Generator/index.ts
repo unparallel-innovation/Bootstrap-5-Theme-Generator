@@ -45,6 +45,15 @@ export default class Bootstrap5Generator {
 
 	}
 
+	async cacheCSS(theme:BootstrapTheme):Promise<string>{
+		if(!theme?.variables) return ""
+		const variables = theme.variables
+		const generatedCSS =  this.generateCSS(variables)
+		const id = hash(variables)
+		await this.cache?.setCachedCSS(id,generatedCSS,theme)
+		return generatedCSS
+	}
+
 	async getCSS(theme:BootstrapTheme):Promise<string>{
 		const variables = theme.variables
 		const id = hash(variables)
