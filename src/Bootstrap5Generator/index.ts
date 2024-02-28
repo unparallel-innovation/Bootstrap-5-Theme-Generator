@@ -18,15 +18,19 @@ export interface Cache {
 
 }
 
+
 export interface Bootstrap5GeneratorConstructor {
-	cache?:Cache
+	cache?:Cache,
+	ignoreMinify?:boolean
 }
 export default class Bootstrap5Generator {
 
 	private cache: Cache | undefined
-
+	private ignoreMinify: boolean;
+	
 	constructor(props?:Bootstrap5GeneratorConstructor) {
 		this.cache = props?.cache
+		this.ignoreMinify = !!props?.ignoreMinify
 
 	}
 
@@ -39,6 +43,7 @@ export default class Bootstrap5Generator {
 				${css}
 				@import "bootstrap";
 			`,{
+			style:this.ignoreMinify?"expanded":"compressed",
 			loadPaths:[`${__dirname}/bootstrap/scss`]
 		})
 		return result.css
