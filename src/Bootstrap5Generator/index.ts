@@ -6,11 +6,40 @@ export type BoostrapThemeSCSS = string | {
 	before?: string,
 	after?: string
 }
+export type BootstrapComponent = "images" |
+	"containers" |
+	"grid" |
+	"tables" |
+	"forms" |
+	"buttons" |
+	"transitions" |
+	"dropdown" |
+	"button-group" |
+	"nav" |
+	"navbar" |
+	"card" |
+	"accordion" |
+	"breadcrumb" |
+	"pagination" |
+	"badge" |
+	"alert" |
+	"progress" |
+	"list-group" |
+	"close" |
+	"toasts" |
+	"modal" |
+	"tooltip" |
+	"popover" |
+	"carousel" |
+	"spinners" |
+	"offcanvas" |
+	"placeholders"
 
 export interface BootstrapTheme {
 	variables?: BootstrapVariables,
 	scss?: BoostrapThemeSCSS,
 	colors?: BootstrapVariables,
+	components?: BootstrapComponent[],
 	[key: string]: any
 }
 
@@ -23,6 +52,7 @@ export interface Cache {
 	setCachedCSS: (id: string, css: string, theme: BootstrapTheme) => (Promise<void> | void)
 
 }
+
 
 
 export interface Bootstrap5GeneratorConstructor {
@@ -51,6 +81,18 @@ export default class Bootstrap5Generator {
 	constructor(props?: Bootstrap5GeneratorConstructor) {
 		this.#cache = props?.cache
 		this.#ignoreMinify = !!props?.ignoreMinify
+
+	}
+
+	#getBootstrapComponentHM(theme: BootstrapTheme): { [k in BootstrapComponent]?: boolean } | undefined {
+		if (!theme.components) return
+		const hm: { [k in BootstrapComponent]?: boolean } = {
+
+		}
+		for (const key of theme.components) {
+			hm[key] = true
+		}
+		return hm
 
 	}
 
@@ -110,6 +152,18 @@ export default class Bootstrap5Generator {
 	}
 
 	generateCSS(theme: BootstrapTheme): string {
+		const bootstrapComponent = this.#getBootstrapComponentHM(theme)
+		function shouldImport(name: BootstrapComponent): boolean {
+			if (!bootstrapComponent) return true
+			if (!name) return false
+			return !!bootstrapComponent[name]
+		}
+
+
+		function importBootstrapComponent(name: BootstrapComponent): string {
+			if (!shouldImport(name)) return ""
+			return `@import "${name}";`
+		}
 
 		const variables = theme.variables || {}
 		let scssBefore: string = ""
@@ -140,43 +194,42 @@ export default class Bootstrap5Generator {
 				${this.#getThemeColors(theme)}
 				@import "maps";
 				@import "mixins";
-				@import "root";
 
-	
+				@import "root";
 				@import "reboot";
 				@import "type";
 				@import "images";
-				@import "containers";
-				@import "grid";
+				${importBootstrapComponent("containers")}
+				${importBootstrapComponent("grid")}
+		
 				@import "helpers";
 
-
-				
-				@import "tables";
-				@import "forms";
-				@import "buttons";
-				@import "transitions";
-				@import "dropdown";
-				@import "button-group";
-				@import "nav";
-				@import "navbar";
-				@import "card";
-				@import "accordion";
-				@import "breadcrumb";
-				@import "pagination";
-				@import "badge";
-				@import "alert";
-				@import "progress";
-				@import "list-group";
-				@import "close";
-				@import "toasts";
-				@import "modal";
-				@import "tooltip";
-				@import "popover";
-				@import "carousel";
-				@import "spinners";
-				@import "offcanvas";
-				@import "placeholders";
+		
+				${importBootstrapComponent("tables")}
+				${importBootstrapComponent("forms")}
+				${importBootstrapComponent("buttons")}
+				${importBootstrapComponent("transitions")}
+				${importBootstrapComponent("dropdown")}
+				${importBootstrapComponent("button-group")}
+				${importBootstrapComponent("nav")}
+				${importBootstrapComponent("navbar")}
+				${importBootstrapComponent("card")}
+				${importBootstrapComponent("accordion")}
+				${importBootstrapComponent("breadcrumb")}
+				${importBootstrapComponent("pagination")}
+				${importBootstrapComponent("badge")}
+				${importBootstrapComponent("alert")}
+				${importBootstrapComponent("progress")}
+				${importBootstrapComponent("list-group")}
+				${importBootstrapComponent("close")}
+				${importBootstrapComponent("toasts")}
+				${importBootstrapComponent("modal")}
+				${importBootstrapComponent("tooltip")}
+				${importBootstrapComponent("popover")}
+				${importBootstrapComponent("carousel")}
+				${importBootstrapComponent("spinners")}
+				${importBootstrapComponent("offcanvas")}
+				${importBootstrapComponent("placeholders")}
 				
 				@import "utilities";
 				@import "utilities/api";
@@ -200,8 +253,8 @@ export default class Bootstrap5Generator {
 	}
 
 	#getHashFromTheme(theme: BootstrapTheme): string {
-		const { css, variables, colors, scss } = theme
-		const obj = { variables, css, colors, scss }
+		const { css, variables, colors, scss, components } = theme
+		const obj = { variables, css, colors, scss, components }
 		return hash(obj)
 	}
 
