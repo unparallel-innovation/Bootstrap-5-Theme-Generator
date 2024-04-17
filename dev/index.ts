@@ -14,34 +14,31 @@ const cache = {
 }
 
 const variables = {
-	"$primary": "#FFaaCC",
-	"$secondary": "#ccdbe1",
-	"$warning": "#ee8140",
-	"$danger": "#CC3105",
-	"$success": "#B6E186",
+
 	"$body-bg": "#ffff00",
 	"$info": "#99b6c3",
 	"$badge-pill-border-radius": "20rem",
 	"$border-radius": "1.5rem",
 	"$border-radius-lg": "1.5rem",
 	"$border-radius-sm": "1.5rem",
-	"$toast-border-radius": "2rem"
+	"$toast-border-radius": "2rem",
+	"$color-1": "#6b717f",
+	"$color-2": "lighten($color-1,20% )"
 }
 
 const theme = {
 	variables,
-	scss: {
-		after: `
-			:root {
-				--light-color:#{$light};
-				--test-var:#{$primary};
-			}
-		
-		`
+	colors: {
+		primary: "#FFaaCC",
+		secondary: "#ccdbe1",
+		warning: "#ee8140",
+		danger: "#CC3105",
+		//	success: "#B6E186",
+		highlight: "#FF00FF"
 	}
 }
 
-const instance = new Bootstrap5Generator({ cache, ignoreMinify: false })
+const instance = new Bootstrap5Generator({ cache, ignoreMinify: true })
 
 async function main() {
 	try {
