@@ -127,7 +127,8 @@ export default class Bootstrap5Generator {
 
 		const result = sass.compileString(`
 				${scssBefore} 
-
+				@import "mixins/banner";
+				@include bsBanner("");
 				@import "functions";
 
 				${variableSCSS}
@@ -178,7 +179,7 @@ export default class Bootstrap5Generator {
 				@import "placeholders";
 				
 				@import "utilities";
-
+				@import "utilities/api";
 				${scssAfter}
 			`, {
 			style: this.#ignoreMinify ? "expanded" : "compressed",
