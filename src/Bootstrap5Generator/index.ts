@@ -199,8 +199,8 @@ export default class Bootstrap5Generator {
 	}
 
 	#getHashFromTheme(theme: BootstrapTheme): string {
-		const { css, variables } = theme
-		const obj = { variables, css }
+		const { css, variables, colors, scss } = theme
+		const obj = { variables, css, colors, scss }
 		return hash(obj)
 	}
 
