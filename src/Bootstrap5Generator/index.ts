@@ -6,40 +6,55 @@ export type BoostrapThemeSCSS = string | {
 	before?: string,
 	after?: string
 }
-export type BootstrapComponent = "images" |
-	"containers" |
-	"grid" |
-	"tables" |
-	"forms" |
-	"buttons" |
-	"transitions" |
-	"dropdown" |
-	"button-group" |
-	"nav" |
-	"navbar" |
-	"card" |
-	"accordion" |
-	"breadcrumb" |
-	"pagination" |
-	"badge" |
-	"alert" |
-	"progress" |
-	"list-group" |
-	"close" |
-	"toasts" |
-	"modal" |
-	"tooltip" |
-	"popover" |
-	"carousel" |
-	"spinners" |
-	"offcanvas" |
+
+const boostrapComponents = [
+	"containers",
+	"grid",
+	"tables",
+	"forms",
+	"buttons",
+	"transitions",
+	"dropdown",
+	"button-group",
+	"nav",
+	"navbar",
+	"card",
+	"accordion",
+	"breadcrumb",
+	"pagination",
+	"badge",
+	"alert",
+	"progress",
+	"list-group",
+	"close",
+	"toasts",
+	"modal",
+	"tooltip",
+	"popover",
+	"carousel",
+	"spinners",
+	"offcanvas",
 	"placeholders"
+
+] as const
+
+export type BootstrapComponent = typeof boostrapComponents[number]
+
+export interface ThemeBackground {
+	type: "single" | "gradient",
+	color?: string,
+	firstColor?: string,
+	secondColor?: string,
+	orientation?: string | number
+}
+
 
 export interface BootstrapTheme {
 	variables?: BootstrapVariables,
 	scss?: BoostrapThemeSCSS,
 	colors?: BootstrapVariables,
 	components?: BootstrapComponent[],
+	background?: ThemeBackground,
 	[key: string]: any
 }
 
@@ -57,7 +72,8 @@ export interface Cache {
 
 export interface Bootstrap5GeneratorConstructor {
 	cache?: Cache,
-	ignoreMinify?: boolean
+	ignoreMinify?: boolean,
+	bootstrapSCSSPath?: string
 }
 
 const defaultColorKeysHM: { [k: string]: boolean | undefined } = {
@@ -77,18 +93,18 @@ export default class Bootstrap5Generator {
 
 	#cache: Cache | undefined
 	#ignoreMinify: boolean;
+	#bootstrapSCSSPath: string | undefined
+
 
 	constructor(props?: Bootstrap5GeneratorConstructor) {
 		this.#cache = props?.cache
 		this.#ignoreMinify = !!props?.ignoreMinify
-
+		this.#bootstrapSCSSPath = props?.bootstrapSCSSPath
 	}
 
 	#getBootstrapComponentHM(theme: BootstrapTheme): { [k in BootstrapComponent]?: boolean } | undefined {
 		if (!theme.components) return
-		const hm: { [k in BootstrapComponent]?: boolean } = {
-
-		}
+		const hm: { [k in BootstrapComponent]?: boolean } = {}
 		for (const key of theme.components) {
 			hm[key] = true
 		}
@@ -96,67 +112,14 @@ export default class Bootstrap5Generator {
 
 	}
 
-	#getVariableFromThemeColors(theme: BootstrapTheme): string {
-		if (!theme?.colors) return ""
-		return Object.keys(theme.colors).reduce((a: string, key: string) => (
-			`${a}
-			 $${key}:${theme!.colors![key]};`
-		), "")
-	}
 
-
-	#getThemeColors(theme: BootstrapTheme): string {
-		if (!theme?.colors) return ""
-		const defaultColorKeys = Object.keys(defaultColorKeysHM)
-		const keys = [...defaultColorKeys, ...Object.keys(theme.colors).filter(el => !defaultColorKeysHM[el])]
-		const themeColors = keys.reduce((a: string, key: string) => (
-			`${a}
-			 "${key}":$${key},`
-		), "")
-
-
-		const textColors = keys.reduce((a: string, key: string) => (
-			`${a}
-			 "${key}":shade-color($${key}, 60%),`
-		), "")
-
-		const subtleColors = keys.reduce((a: string, key: string) => (
-			`${a}
-			 "${key}": tint-color($${key}, 80%),`
-		), "")
-
-
-		const borderSubtleColors = keys.reduce((a: string, key: string) => (
-			`${a}
-			 "${key}": tint-color($${key}, 60%),`
-		), "")
-
-		return `
-		$theme-colors: (
-			${themeColors}
-		  );
-
-
-		  $theme-colors-text: (
-			${textColors}
-		  );
-
-		  $theme-colors-bg-subtle: (
-			${subtleColors}
-		  );
-
-		  $theme-colors-border-subtle: (
-			${borderSubtleColors}
-		  );
-		`
-	}
 
 	generateCSS(theme: BootstrapTheme): string {
-		const bootstrapComponent = this.#getBootstrapComponentHM(theme)
+		const bootstrapComponentHM = this.#getBootstrapComponentHM(theme)
 		function shouldImport(name: BootstrapComponent): boolean {
-			if (!bootstrapComponent) return true
+			if (!bootstrapComponentHM) return true
 			if (!name) return false
-			return !!bootstrapComponent[name]
+			return !!bootstrapComponentHM[name]
 		}
 
 
@@ -165,7 +128,14 @@ export default class Bootstrap5Generator {
 			return `@import "${name}";`
 		}
 
+		function importBootstrapComponents(): string {
+			return boostrapComponents.map(importBootstrapComponent).filter(el => el).join("\n")
+		}
+
 		const variables = theme.variables || {}
+
+
+
 		let scssBefore: string = ""
 		let scssAfter: string = ""
 		if (typeof theme.scss === "string") {
@@ -174,24 +144,105 @@ export default class Bootstrap5Generator {
 			scssBefore = theme.scss?.before || ""
 			scssAfter = theme.scss?.after || ""
 		}
-		const variableSCSS = Object.keys(variables).reduce((acc, val) => (
-			`${acc}${val}:${variables[val]};`
-		), "")
 
+
+
+		function getThemeColors(): string {
+			if (!theme?.colors) return ""
+			const defaultColorKeys = Object.keys(defaultColorKeysHM)
+			const keys = [...defaultColorKeys, ...Object.keys(theme.colors).filter(el => !defaultColorKeysHM[el])]
+			const themeColors = keys.reduce((a: string, key: string) => (
+				`${a}
+			 "${key}":$${key},`
+			), "")
+
+
+			const textColors = keys.reduce((a: string, key: string) => (
+				`${a}
+			 "${key}":shade-color($${key}, 60%),`
+			), "")
+
+			const subtleColors = keys.reduce((a: string, key: string) => (
+				`${a}
+			 "${key}": tint-color($${key}, 80%),`
+			), "")
+
+
+			const borderSubtleColors = keys.reduce((a: string, key: string) => (
+				`${a}
+			 "${key}": tint-color($${key}, 60%),`
+			), "")
+
+			return `
+			$theme-colors: (
+				${themeColors}
+			);
+
+
+			$theme-colors-text: (
+				${textColors}
+			);
+
+			$theme-colors-bg-subtle: (
+				${subtleColors}
+			);
+
+			$theme-colors-border-subtle: (
+				${borderSubtleColors}
+			);
+		`
+		}
+
+		function getVariableFromThemeColors(): string {
+			if (!theme?.colors) return ""
+			return Object.keys(theme.colors).reduce((a: string, key: string) => (
+				`${a}
+				 $${key}:${theme!.colors![key]};`
+			), "")
+		}
+
+
+		function getGradientFromTheme(): string {
+
+			if (theme.background?.type !== "gradient") return ""
+			if (!theme.background?.firstColor || !theme.background?.secondColor) return ""
+			const { type, secondColor, firstColor, orientation } = theme.background
+
+			let _orientation: string = "0deg"
+			if (typeof orientation === "number") _orientation = `${orientation}deg`
+			else if (typeof orientation === "string") _orientation = orientation
+
+			return `
+					body {
+						background-image: linear-gradient(${_orientation}, ${firstColor}, ${secondColor});
+						background-attachment: fixed;
+					}
+				`
+		}
+
+		function getSCSSVariables(): string {
+			let bodyBG: string | undefined = variables["$body-bg"]
+			let _variables = variables
+			if (theme.background?.type === "single" && theme.background.color) bodyBG = theme.background.color
+			if (bodyBG) _variables = { ...variables, "$body-bg": bodyBG }
+			return Object.keys(_variables).reduce((acc, val) => (
+				`${acc}${val}:${_variables[val]};`
+			), "")
+		}
 
 		const result = sass.compileString(`
 				${scssBefore} 
 				@import "mixins/banner";
 				@include bsBanner("");
 				@import "functions";
-
-				${variableSCSS}
-				${this.#getVariableFromThemeColors(theme)}
+				${getGradientFromTheme()}
+				${getSCSSVariables()}
+				${getVariableFromThemeColors()}
 				@import "variables";
 				@import "variables-dark";
 
 
-				${this.#getThemeColors(theme)}
+				${getThemeColors()}
 				@import "maps";
 				@import "mixins";
 
@@ -199,44 +250,17 @@ export default class Bootstrap5Generator {
 				@import "reboot";
 				@import "type";
 				@import "images";
-				${importBootstrapComponent("containers")}
-				${importBootstrapComponent("grid")}
-		
+				
 				@import "helpers";
 
-		
-				${importBootstrapComponent("tables")}
-				${importBootstrapComponent("forms")}
-				${importBootstrapComponent("buttons")}
-				${importBootstrapComponent("transitions")}
-				${importBootstrapComponent("dropdown")}
-				${importBootstrapComponent("button-group")}
-				${importBootstrapComponent("nav")}
-				${importBootstrapComponent("navbar")}
-				${importBootstrapComponent("card")}
-				${importBootstrapComponent("accordion")}
-				${importBootstrapComponent("breadcrumb")}
-				${importBootstrapComponent("pagination")}
-				${importBootstrapComponent("badge")}
-				${importBootstrapComponent("alert")}
-				${importBootstrapComponent("progress")}
-				${importBootstrapComponent("list-group")}
-				${importBootstrapComponent("close")}
-				${importBootstrapComponent("toasts")}
-				${importBootstrapComponent("modal")}
-				${importBootstrapComponent("tooltip")}
-				${importBootstrapComponent("popover")}
-				${importBootstrapComponent("carousel")}
-				${importBootstrapComponent("spinners")}
-				${importBootstrapComponent("offcanvas")}
-				${importBootstrapComponent("placeholders")}
+				${importBootstrapComponents()}
 				
 				@import "utilities";
 				@import "utilities/api";
 				${scssAfter}
 			`, {
 			style: this.#ignoreMinify ? "expanded" : "compressed",
-			loadPaths: [`${__dirname}/bootstrap/scss`]
+			loadPaths: [this.#bootstrapSCSSPath || `${__dirname}/bootstrap/scss`]
 		})
 
 
@@ -253,8 +277,8 @@ export default class Bootstrap5Generator {
 	}
 
 	#getHashFromTheme(theme: BootstrapTheme): string {
-		const { css, variables, colors, scss, components } = theme
-		const obj = { variables, css, colors, scss, components }
+		const { css, variables, colors, scss, components, background } = theme
+		const obj = { variables, css, colors, scss, components, background }
 		return hash(obj)
 	}
 

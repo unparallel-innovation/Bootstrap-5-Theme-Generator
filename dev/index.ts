@@ -28,9 +28,20 @@ const variables = {
 }
 
 const theme: BootstrapTheme = {
+	/*scss: {
+		before: `
+		
+		body {
+			background-image: linear-gradient(45deg, red, blue);
+			background-attachment: fixed;
+		}
+	
+		
+		`
+	},*/
 	variables: {
 
-		"$body-bg": "#ffff00",
+
 		"$info": "#99b6c3",
 		"$badge-pill-border-radius": "20rem",
 		"$border-radius": "1.5rem",
@@ -38,9 +49,10 @@ const theme: BootstrapTheme = {
 		"$border-radius-sm": "1.5rem",
 		"$toast-border-radius": "2rem"
 	},
-	components: [
-
-	],
+	background: {
+		"type": "single",
+		color: "#c99c28"
+	},
 	colors: {
 		primary: "#FFaaCC",
 		secondary: "#ccdbe1",
