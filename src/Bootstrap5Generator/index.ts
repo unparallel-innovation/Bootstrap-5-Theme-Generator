@@ -225,8 +225,12 @@ export default class Bootstrap5Generator {
 			let _variables = variables
 			if (theme.background?.type === "single" && theme.background.color) bodyBG = theme.background.color
 			if (bodyBG) _variables = { ...variables, "$body-bg": bodyBG }
+			function appendKey(key: string): string {
+				if (!key.startsWith("$")) return `$${key}`
+				return key
+			}
 			return Object.keys(_variables).reduce((acc, val) => (
-				`${acc}${val}:${_variables[val]};`
+				`${acc}${appendKey(val)}:${_variables[val]};`
 			), "")
 		}
 

@@ -42,17 +42,14 @@ const theme: BootstrapTheme = {
 	variables: {
 
 
-		"$info": "#99b6c3",
+		"info": "#ccffcc",
 		"$badge-pill-border-radius": "20rem",
 		"$border-radius": "1.5rem",
 		"$border-radius-lg": "1.5rem",
 		"$border-radius-sm": "1.5rem",
 		"$toast-border-radius": "2rem"
 	},
-	background: {
-		"type": "single",
-		color: "#c99c28"
-	},
+
 	colors: {
 		primary: "#FFaaCC",
 		secondary: "#ccdbe1",
