@@ -281,7 +281,12 @@ export default class Bootstrap5Generator {
 	}
 
 	#getHashFromTheme(theme: BootstrapTheme): string {
-		const { css, variables, colors, scss, components, background } = theme
+		const { css, variables, colors, scss, components } = theme
+		let background: ThemeBackground | undefined
+		if (theme.background) {
+			const { type, color, firstColor, orientation, secondColor } = theme.background
+			background = { type, color, firstColor, orientation, secondColor }
+		}
 		const obj = { variables, css, colors, scss, components, background }
 		return hash(obj)
 	}
