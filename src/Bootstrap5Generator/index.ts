@@ -221,7 +221,7 @@ export default class Bootstrap5Generator {
 		}
 
 		function getSCSSVariables(): string {
-			let bodyBG: string | undefined = variables["$body-bg"]
+			let bodyBG: string | undefined = variables["$body-bg"] || variables["body-bg"]
 			let _variables = variables
 			if (theme.background?.type === "single" && theme.background.color) bodyBG = theme.background.color
 			if (bodyBG) _variables = { ...variables, "$body-bg": bodyBG }
