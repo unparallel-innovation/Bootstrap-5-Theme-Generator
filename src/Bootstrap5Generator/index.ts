@@ -268,7 +268,7 @@ export default class Bootstrap5Generator {
 		})
 
 
-		return result.css
+		return result.css.replace(/^\uFEFF/gm, "").replace(/^\u00BB\u00BF/gm, "")
 
 	}
 

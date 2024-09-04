@@ -51,7 +51,7 @@ const theme: BootstrapTheme = {
 	},
 
 	colors: {
-		primary: "#FFaaCC",
+		primary: "#FFAACC",
 		secondary: "#ccdbe1",
 		warning: "#ee8140",
 		danger: "#CC3105",
