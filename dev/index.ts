@@ -56,7 +56,8 @@ const theme: BootstrapTheme = {
 		warning: "#ee8140",
 		danger: "#CC3105",
 		success: "#B6E186",
-		highlight: "#FF00FF"
+		highlight: "#FF00FF",
+		custom: "#FF8000"
 	}
 }
 

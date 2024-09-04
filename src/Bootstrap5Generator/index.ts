@@ -173,6 +173,17 @@ export default class Bootstrap5Generator {
 			 "${key}": tint-color($${key}, 60%),`
 			), "")
 
+			const bgUtilities = keys.reduce((a: string, key: string) => (
+				`${a}
+				"${key}-subtle": var(--#{$prefix}${key}-bg-subtle),`
+			), "")
+
+			const borderUtilities = keys.reduce((a: string, key: string) => (
+				`${a}
+				"${key}-subtle": var(--#{$prefix}${key}-border-subtle),`
+			), "")
+
+
 			return `
 			$theme-colors: (
 				${themeColors}
@@ -189,6 +200,12 @@ export default class Bootstrap5Generator {
 
 			$theme-colors-border-subtle: (
 				${borderSubtleColors}
+			);
+			$utilities-bg-subtle: (
+				${bgUtilities}
+			);
+			$utilities-border-subtle: (
+				${borderUtilities}
 			);
 		`
 		}
