@@ -49,7 +49,11 @@ const theme: BootstrapTheme = {
 		"$border-radius-sm": "1.5rem",
 		"$toast-border-radius": "2rem"
 	},
-
+	background: {
+		type: "gradient",
+		firstColor: "#FF0000",
+		secondColor: "#00FFFF"
+	},
 	colors: {
 		primary: "#FFAACC",
 		secondary: "#ccdbe1",

@@ -228,10 +228,13 @@ export default class Bootstrap5Generator {
 			let _orientation: string = "0deg"
 			if (typeof orientation === "number") _orientation = `${orientation}deg`
 			else if (typeof orientation === "string") _orientation = orientation
-
+			const key = "gradient-background-image"
 			return `
+					:root {
+						--${key}:linear-gradient(${_orientation}, ${firstColor}, ${secondColor});
+					}
 					body {
-						background-image: linear-gradient(${_orientation}, ${firstColor}, ${secondColor});
+						background-image: var(--${key});
 						background-attachment: fixed;
 					}
 				`
