@@ -1,6 +1,6 @@
 {
   "name": "@unparallel/bootstrap-5-theme-generator",
-  "version": "0.6.6",
+  "version": "0.7.0",
   "description": "",
   "source": "src/index.ts",
   "main": "dist/index.js",
