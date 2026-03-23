@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs from "fs";
 import * as sass from 'sass'
 import hash from 'object-hash'
 
@@ -73,7 +73,8 @@ export interface Cache {
 export interface Bootstrap5GeneratorConstructor {
 	cache?: Cache,
 	ignoreMinify?: boolean,
-	bootstrapSCSSPath?: string
+	bootstrapSCSSPath?: string,
+	useObjectToComputeHash?: boolean
 }
 
 const defaultColorKeysHM: { [k: string]: boolean | undefined } = {
@@ -94,12 +95,13 @@ export default class Bootstrap5Generator {
 	#cache: Cache | undefined
 	#ignoreMinify: boolean;
 	#bootstrapSCSSPath: string | undefined
-
+	#useObjectToComputeHash: boolean
 
 	constructor(props?: Bootstrap5GeneratorConstructor) {
 		this.#cache = props?.cache
 		this.#ignoreMinify = !!props?.ignoreMinify
 		this.#bootstrapSCSSPath = props?.bootstrapSCSSPath
+		this.#useObjectToComputeHash = !!props?.useObjectToComputeHash
 	}
 
 	#getBootstrapComponentHM(theme: BootstrapTheme): { [k in BootstrapComponent]?: boolean } | undefined {
@@ -254,6 +256,7 @@ export default class Bootstrap5Generator {
 			), "")
 		}
 
+
 		const result = sass.compileString(`
 				${scssBefore} 
 				@import "mixins/banner";
@@ -300,6 +303,11 @@ export default class Bootstrap5Generator {
 		return generatedCSS
 	}
 
+	#hashObject(obj: object | string | number | boolean | null): string {
+		if (this.#useObjectToComputeHash) return hash(obj)
+		return hash(JSON.stringify(obj))
+	}
+
 	#getHashFromTheme(theme: BootstrapTheme): string {
 		const { css, variables, colors, scss, components } = theme
 		let background: ThemeBackground | undefined
@@ -308,7 +316,7 @@ export default class Bootstrap5Generator {
 			background = { type, color, firstColor, orientation, secondColor }
 		}
 		const obj = { variables, css, colors, scss, components, background }
-		return hash(obj)
+		return this.#hashObject(obj)
 	}
 
 

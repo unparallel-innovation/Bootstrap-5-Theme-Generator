@@ -1,7 +1,8 @@
 import fs from "node:fs";
 import { BootstrapTheme } from "../src";
+import { Bootstrap5Generator } from "../dist";
 
-const Bootstrap5Generator = require("../").Bootstrap5Generator
+
 
 
 
@@ -14,71 +15,46 @@ const cache = {
 	getCachedCSS: (id: string) => (storage[id])
 }
 
-const variables = {
-
-	"$body-bg": "#ffff00",
-	"$info": "#99b6c3",
-	"$badge-pill-border-radius": "20rem",
-	"$border-radius": "1.5rem",
-	"$border-radius-lg": "1.5rem",
-	"$border-radius-sm": "1.5rem",
-	"$toast-border-radius": "2rem",
-	"$color-1": "#6b717f",
-	"$color-2": "lighten($color-1,20% )"
-}
-
 const theme: BootstrapTheme = {
-	/*scss: {
-		before: `
-		
-		body {
-			background-image: linear-gradient(45deg, red, blue);
-			background-attachment: fixed;
-		}
-	
-		
-		`
-	},*/
-	variables: {
-
-
-		"info": "#ccffcc",
-		"$badge-pill-border-radius": "20rem",
-		"$border-radius": "1.5rem",
-		"$border-radius-lg": "1.5rem",
-		"$border-radius-sm": "1.5rem",
-		"$toast-border-radius": "2rem"
-	},
-	background: {
-		type: "gradient",
-		firstColor: "#FF0000",
-		secondColor: "#00FFFF"
-	},
 	colors: {
-		primary: "#FFAACC",
-		secondary: "#ccdbe1",
-		warning: "#ee8140",
-		danger: "#CC3105",
-		success: "#B6E186",
-		highlight: "#FF00FF",
-		custom: "#FF8000"
+		primary: "#ff0000",
+		secondary: "#00ffff"
 	}
 }
 
+const theme2: BootstrapTheme = {
+	colors: {
+		primary: "#00ff00",
+		secondary: "#00ffff"
+	}
+}
+
+
 const instance = new Bootstrap5Generator({ cache, ignoreMinify: true })
+const instance2 = new Bootstrap5Generator({ cache, ignoreMinify: true, useObjectToComputeHash: true })
 
 async function main() {
 	try {
-		console.log("Generating")
-		console.time()
+
+		console.time("instance1 - 1")
 		const css = await instance.getCSS(theme)
+		console.timeEnd("instance1 - 1")
+
+		console.time("instance2 - 1")
+		const css2 = await instance2.getCSS(theme2)
+		console.timeEnd("instance2 - 1")
+
+		console.time("instance1 - 2")
+		const css3 = await instance.getCSS(theme)
+		console.timeEnd("instance1 - 2")
+
+		console.time("instance2 - 2")
+		const css4 = await instance2.getCSS(theme2)
+		console.timeEnd("instance2 - 2")
+
 		fs.writeFileSync(__dirname + '/test.css', css)
-		console.timeEnd()
-		console.log("Generating")
-		console.time()
-		const css2 = await instance.getCSS(theme)
-		fs.writeFileSync(__dirname + '/test2.css', css2)
-		console.timeEnd()
+
+
 	}
 	catch (e) {
 		console.error(e)
