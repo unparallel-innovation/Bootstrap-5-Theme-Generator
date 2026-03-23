@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [0.7.0] - 2026-03-23
-- Using string insted of using an object when computing the hash from the theme
+- Using string instead of using an object when computing the hash from the theme
 
 ## [0.6.6] - 2024-10-15
 - Exposed gradient background image as a css variable 
